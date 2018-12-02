@@ -10,7 +10,6 @@
     </ProjectReference>
     <ProjectReference Include="..\Xamarin.Forms.Core\Xamarin.Forms.Core.csproj">
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.Forms.Maps\Xamarin.Forms.Maps.csproj" />
     <ProjectReference Include="..\Xamarin.Forms.Platform.WPF\Xamarin.Forms.Platform.WPF.csproj" />
   </ItemGroup>
 </Project>
