@@ -38,7 +38,7 @@ namespace Xamarin.Forms.Platform.WPF
 		public override SizeRequest GetDesiredSize(double widthConstraint, double heightConstraint)
 		{
 			var size = base.GetDesiredSize(widthConstraint, heightConstraint);
-			Control.RecalculateSpanPositions(Element, _inlineHeights);
+			//Control.RecalculateSpanPositions(Element, _inlineHeights);
 			return size;
 		}
 
@@ -187,7 +187,7 @@ namespace Xamarin.Forms.Platform.WPF
 					{
 						var span = formattedText.Spans[i];
 						var run = span.ToRun();
-						heights.Add(Control.FindDefaultLineHeight(run));
+					//	heights.Add(Control.FindDefaultLineHeight(run));
 						Control.Inlines.Add(run);
 					}
 					_inlineHeights = heights;

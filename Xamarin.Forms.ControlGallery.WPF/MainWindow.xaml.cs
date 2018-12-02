@@ -11,7 +11,7 @@ namespace Xamarin.Forms.ControlGallery.WPF
 		{
 			InitializeComponent();
 			Xamarin.Forms.Forms.Init();
-			FormsMaps.Init("");
+			//FormsMaps.Init("");
 			LoadApplication(new Controls.App());
             //LoadApplication(new OpenGLViewApp());
         }
