@@ -612,7 +612,7 @@ namespace Xamarin.Forms.Controls
 
 		public void AddTopTab(ContentPage page, string title = null)
 		{
-			if(Items.Count == 0)
+			if(Items.Count == 0 || Items[0].Items.Count == 0)
 			{
 				var item = AddContentPage(page);
 				item.Items[0].Items[0].Title = title ?? page.Title;
@@ -637,6 +637,7 @@ namespace Xamarin.Forms.Controls
 			ContentPage page = new ContentPage();
 			Items[0].Items.Add(new ShellSection()
 			{
+				Title = title,
 				Items =
 				{
 					new ShellContent()
