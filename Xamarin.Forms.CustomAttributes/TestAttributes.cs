@@ -506,6 +506,7 @@ namespace Xamarin.Forms.CustomAttributes
 			Completed,
 			TextChanged,
 			Placeholder,
+			PlaceholderColor,
 			Text,
 			TextColor,
 			FontAttributes,
