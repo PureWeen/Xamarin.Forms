@@ -468,6 +468,9 @@
                                             HorizontalContentAlignment="Stretch"
                                             Grid.Row="4" />
 
+                                        <xf:ShellFlyoutRenderer Grid.Row="6">
+                                        </xf:ShellFlyoutRenderer>
+                                        
                                         <!-- Left nav ItemsRepeater -->
                                         <winui:ItemsRepeaterScrollHost
                                             Grid.Row="6"

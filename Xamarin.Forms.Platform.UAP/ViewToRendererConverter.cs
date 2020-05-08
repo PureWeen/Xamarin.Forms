@@ -7,6 +7,7 @@ namespace Xamarin.Forms.Platform.UWP
 {
 	public class ViewToRendererConverter : Windows.UI.Xaml.Data.IValueConverter
 	{
+		public bool SizeToContainer { get; set; }
 		public object Convert(object value, Type targetType, object parameter, string language)
 		{
 			var view = value as View;
@@ -23,7 +24,10 @@ namespace Xamarin.Forms.Platform.UWP
 			if (view == null)
 				return null;
 
-			return new WrapperControl(view);
+			return new WrapperControl(view)
+			{
+				SizeToContainer = SizeToContainer
+			};
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, string language)
@@ -33,6 +37,7 @@ namespace Xamarin.Forms.Platform.UWP
 
 		internal class WrapperControl : Panel
 		{
+			public bool SizeToContainer { get; set; }
 			readonly View _view;
 
 			FrameworkElement FrameworkElement { get; }
@@ -108,7 +113,10 @@ namespace Xamarin.Forms.Platform.UWP
 				Windows.Foundation.Size result;
 				if (_view.HorizontalOptions.Alignment == LayoutAlignment.Fill && !double.IsInfinity(availableSize.Width) && availableSize.Width != 0)
 				{
-					result = new Windows.Foundation.Size(availableSize.Width, request.Height);
+					if(!SizeToContainer)
+						result = new Windows.Foundation.Size(availableSize.Width, request.Height);
+					else
+						result = new Windows.Foundation.Size(availableSize.Width, availableSize.Height);
 				}
 				else
 				{

@@ -43,6 +43,7 @@ namespace Xamarin.Forms.Platform.UWP
 			Content = ItemRenderer = CreateShellItemRenderer();
 			MenuItemTemplateSelector = CreateShellFlyoutTemplateSelector();
 			Style = Windows.UI.Xaml.Application.Current.Resources["ShellNavigationView"] as Windows.UI.Xaml.Style;
+
 		}
 
 		async void OnBackRequested(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewBackRequestedEventArgs args)
@@ -307,6 +308,7 @@ namespace Xamarin.Forms.Platform.UWP
 			if (shell == null)
 				return;
 
+			this.DataContext = _shell;
 			var shr = CreateShellHeaderRenderer(shell);
 			PaneCustomContent = shr;
 			PaneFooter = CreateShellFooterRenderer(shell);
@@ -374,6 +376,8 @@ namespace Xamarin.Forms.Platform.UWP
 		{
 			UpdateMenuItemSource();
 		}
+
+		
 
 		void OnItemsCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
