@@ -21,6 +21,8 @@ namespace Xamarin.Forms.Platform.iOS
 			else
 			{
 				_backdropBrush = appearance.FlyoutBackdrop;
+				SlideFlyoutTransition?.SetFlyoutSizes(appearance.FlyoutHeight, appearance.FlyoutWidth);
+			}
 
 				if (appearance.FlyoutHeight != SlideFlyoutTransition.Height ||
 					appearance.FlyoutWidth != SlideFlyoutTransition.Width)
