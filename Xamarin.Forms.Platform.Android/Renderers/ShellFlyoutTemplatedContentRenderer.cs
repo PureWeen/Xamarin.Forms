@@ -32,11 +32,16 @@ namespace Xamarin.Forms.Platform.Android
 		ImageView _bgImage;
 		AppBarLayout _appBar;
 		RecyclerView _recycler;
+		AView _flyoutContentView;
 		ShellFlyoutRecyclerAdapter _adapter;
 		View _flyoutHeader;
 		ShellViewRenderer _footerView;
 		int _actionBarHeight;
 		ScrollLayoutManager _layoutManager;
+
+		protected IShellContext ShellContext => _shellContext;
+		protected AView FooterView => _footerView?.NativeView;
+		protected AView View => _rootView;
 
 		public ShellFlyoutTemplatedContentRenderer(IShellContext shellContext)
 		{
@@ -58,10 +63,7 @@ namespace Xamarin.Forms.Platform.Android
 				return;
 			}
 
-			var coordinator = LayoutInflater.FromContext(context).Inflate(Resource.Layout.FlyoutContent, null);
-
-			Profile.FramePartition("Find Recycler");
-			_recycler = coordinator.FindViewById<RecyclerView>(Resource.Id.flyoutcontent_recycler);
+			var coordinator = (ViewGroup)LayoutInflater.FromContext(context).Inflate(Resource.Layout.FlyoutContent, null);
 
 			Profile.FramePartition("Find AppBar");
 			_appBar = coordinator.FindViewById<AppBarLayout>(Resource.Id.flyoutcontent_appbar);
@@ -75,12 +77,9 @@ namespace Xamarin.Forms.Platform.Android
 			_actionBarHeight = (int)context.ToPixels(56);
 			UpdateFlyoutHeader();
 
-			Profile.FramePartition("Recycler.SetAdapter");
-			_adapter = new ShellFlyoutRecyclerAdapter(shellContext, OnElementSelected);
-			_recycler.SetClipToPadding(false);
-			_recycler.SetLayoutManager(_layoutManager = new ScrollLayoutManager(context, (int)Orientation.Vertical, false));
-			_recycler.SetLayoutManager(new LinearLayoutManager(context, (int)Orientation.Vertical, false));
-			_recycler.SetAdapter(_adapter);
+			_flyoutContentView = CreateFlyoutContent(coordinator);
+			if (_flyoutContentView != null)
+				coordinator.AddView(_flyoutContentView);
 
 			Profile.FramePartition("Initialize BgImage");
 			var metrics = context.Resources.DisplayMetrics;
@@ -184,7 +183,26 @@ namespace Xamarin.Forms.Platform.Android
 			UpdateFlyoutHeaderBehavior();
 		}
 
-		void UpdateFlyoutFooter()
+		protected virtual AView CreateFlyoutContent(ViewGroup rootView)
+		{
+			var lp = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MatchParent, CoordinatorLayout.LayoutParams.MatchParent);
+			lp.Behavior = new AppBarLayout.ScrollingViewBehavior();
+			var context = ShellContext.AndroidContext;
+			_recycler = new RecyclerView(context)
+			{
+				LayoutParameters = lp
+			};
+
+			Profile.FramePartition("Recycler.SetAdapter");
+			_adapter = new ShellFlyoutRecyclerAdapter(ShellContext, OnElementSelected);
+			_recycler.SetClipToPadding(false);
+			_recycler.SetLayoutManager(_layoutManager = new ScrollLayoutManager(context, (int)Orientation.Vertical, false));
+			_recycler.SetLayoutManager(new LinearLayoutManager(context, (int)Orientation.Vertical, false));
+			_recycler.SetAdapter(_adapter);
+			return _recycler;
+		}
+
+		protected virtual void UpdateFlyoutFooter()
 		{
 			if (_footerView != null)
 			{
@@ -201,7 +219,6 @@ namespace Xamarin.Forms.Platform.Android
 
 			_footerView = new ShellViewRenderer(_shellContext.AndroidContext, footer);
 
-
 			_footerView.NativeView.LayoutParameters = new CoordinatorLayout.LayoutParams(LP.MatchParent, LP.WrapContent)
 			{
 				Gravity = (int)(GravityFlags.Bottom | GravityFlags.End)
@@ -209,6 +226,10 @@ namespace Xamarin.Forms.Platform.Android
 
 			_footerView.LayoutView(_shellContext.AndroidContext.FromPixels(_rootView.LayoutParameters.Width), -1);
 			_rootView.AddView(_footerView.NativeView);
+			if(_flyoutContentView.LayoutParameters is CoordinatorLayout.LayoutParams cl)
+			{
+				cl.BottomMargin = (int)_shellContext.AndroidContext.ToPixels(_footerView.View.Height);
+			}
 		}
 
 		void UpdateVerticalScrollMode()

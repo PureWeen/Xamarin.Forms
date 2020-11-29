@@ -421,7 +421,7 @@ namespace Xamarin.Forms
 		bool IShellController.ProposeNavigation(ShellNavigationSource source, ShellItem shellItem, ShellSection shellSection, ShellContent shellContent, IReadOnlyList<Page> stack, bool canCancel)
 		{
 			var proposedState = GetNavigationState(shellItem, shellSection, shellContent, stack, shellSection.Navigation.ModalStack);
-			return ProposeNavigation(source, proposedState, canCancel, null);
+			return ProposeNavigation(source, proposedState, canCancel, null, true);
 		}
 
 		bool IShellController.RemoveAppearanceObserver(IAppearanceObserver observer)
@@ -511,7 +511,7 @@ namespace Xamarin.Forms
 
 			ShellNavigationSource source = CalculateNavigationSource(CurrentState, navigationRequest);
 
-			var accept = ProposeNavigation(source, state, this.CurrentState != null, deferredArgs);
+			var accept = ProposeNavigation(source, state, this.CurrentState != null, deferredArgs, animate ?? true);
 
 			if (deferredArgs == null && _deferredEventArgs != null)
 			{
@@ -855,11 +855,29 @@ namespace Xamarin.Forms
 		View _flyoutFooterView;
 		List<List<Element>> _currentFlyoutViews;
 
+		ObservableCollection<Element> _allTheChildren = new ObservableCollection<Element>();
+
+		internal override ReadOnlyCollection<Element> LogicalChildrenInternal => 
+			new ReadOnlyCollection<Element>(_allTheChildren);
+
 		public Shell()
 		{
 			Navigation = new NavigationImpl(this);
 			Route = Routing.GenerateImplicitRoute("shell");
 			Initialize();
+
+			InternalChildren.CollectionChanged += InternalChildren_CollectionChanged;
+		}
+
+		void InternalChildren_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			if (e.NewItems != null)
+				foreach (Element element in e.NewItems)
+					_allTheChildren.Add(element);
+
+			if (e.OldItems != null)
+				foreach (Element element in e.OldItems)
+					_allTheChildren.Add(element);
 		}
 
 		void Initialize()
@@ -1073,6 +1091,21 @@ namespace Xamarin.Forms
 		internal string RouteHost { get; set; } = "shell";
 
 		internal string RouteScheme { get; set; } = "app";
+
+
+		protected override void OnChildRemoved(Element child, int oldLogicalIndex)
+		{
+			if (_allTheChildren.Contains(child))
+				_allTheChildren.Remove(child);
+			base.OnChildRemoved(child, oldLogicalIndex);
+		}
+
+		protected override void OnChildAdded(Element child)
+		{
+			if (!_allTheChildren.Contains(child))
+				_allTheChildren.Add(child);
+			base.OnChildAdded(child);
+		}
 
 		View FlyoutHeaderView
 		{
@@ -1673,12 +1706,12 @@ namespace Xamarin.Forms
 			}
 		}
 
-		bool ProposeNavigation(ShellNavigationSource source, ShellNavigationState proposedState, bool canCancel, ShellNavigatingEventArgs deferredArgs)
+		bool ProposeNavigation(ShellNavigationSource source, ShellNavigationState proposedState, bool canCancel, ShellNavigatingEventArgs deferredArgs, bool isAnimated)
 		{
 			if (_accumulateNavigatedEvents)
 				return true;
 
-			var navArgs = deferredArgs ?? new ShellNavigatingEventArgs(CurrentState, proposedState, source, canCancel);
+			var navArgs = deferredArgs ?? new ShellNavigatingEventArgs(CurrentState, proposedState, source, canCancel) { Animate = isAnimated };
 			HandleNavigating(navArgs);
 			return !navArgs.Cancelled && navArgs.DeferralCount == 0;
 		}
@@ -1794,7 +1827,11 @@ namespace Xamarin.Forms
 				PropertyPropagationExtensions.PropagatePropertyChanged(propertyName, this, new[] { FlyoutFooterView });
 		}
 
-
+		protected override void LayoutChildren(double x, double y, double width, double height)
+		{
+			// Page by default tries to layout all logical children
+			// we don't want this behavior with shell
+		}
 
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		public static void VerifyShellUWPFlagEnabled(
