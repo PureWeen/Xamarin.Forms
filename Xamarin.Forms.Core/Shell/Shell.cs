@@ -866,10 +866,10 @@ namespace Xamarin.Forms
 			Route = Routing.GenerateImplicitRoute("shell");
 			Initialize();
 
-			InternalChildren.CollectionChanged += InternalChildren_CollectionChanged;
+			InternalChildren.CollectionChanged += OnInternalChildrenCollectionChanged;
 		}
 
-		void InternalChildren_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		void OnInternalChildrenCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			if (e.NewItems != null)
 				foreach (Element element in e.NewItems)
@@ -1233,7 +1233,6 @@ namespace Xamarin.Forms
 
 			// If the flyout groupings haven't changed just return
 			// the same instance so the caller knows it hasn't changed
-			// at a later point this will all get converted to an observable collection
 			if (_currentFlyoutViews?.Count == result.Count)
 			{
 				bool hasChanged = false;

@@ -14,7 +14,7 @@
 			android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
 				>
 
-        <androidx.appcompat.widget.Toolbar
+        <xamarin.forms.platform.android.ShellToolbar
 				android:id="@+id/shellcontent.toolbar"
 				android:layout_width="match_parent"
 				android:layout_height="?attr/actionBarSize"

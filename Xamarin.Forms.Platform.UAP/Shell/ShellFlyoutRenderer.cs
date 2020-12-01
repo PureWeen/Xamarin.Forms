@@ -53,7 +53,7 @@ namespace Xamarin.Forms.Platform.UWP
 			if (shellController == null)
 				return;
 
-			_content = (View)Shell.GetFlyoutContentTemplate(shell).CreateContent();
+			//_content = (View)Shell.GetFlyoutContentTemplate(shell).CreateContent();
 			_content.BindingContext = shellController.GenerateFlyoutGrouping();
 
 

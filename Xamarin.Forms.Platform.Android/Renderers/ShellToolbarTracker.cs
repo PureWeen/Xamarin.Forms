@@ -49,7 +49,9 @@ namespace Xamarin.Forms.Platform.Android
 		Page _page;
 		SearchHandler _searchHandler;
 		IShellSearchView _searchView;
-		ContainerView _titleViewContainer;
+		ShellTitleView _titleViewContainer;
+
+		//protected ContainerView TitleViewContainer => _titleViewContainer;
 		protected IShellContext ShellContext { get; private set; }
 		//assume the default
 		Color _tintColor = Color.Default;
@@ -511,34 +513,57 @@ namespace Xamarin.Forms.Platform.Android
 			_toolbar.Title = page.Title;
 		}
 
+		global::Android.Widget.FrameLayout _titleViewLayoutContainer;
+
 		protected virtual void UpdateTitleView(Context context, Toolbar toolbar, View titleView)
 		{
 			if (titleView == null)
 			{
 				if (_titleViewContainer != null)
 				{
-					_titleViewContainer.RemoveFromParent();
-					_titleViewContainer.Dispose();
+					_titleViewContainer.TearDown();
 					_titleViewContainer = null;
 				}
 			}
 			else if (_titleViewContainer == null)
 			{
-				_titleViewContainer = new ContainerView(context, titleView);
-				_titleViewContainer.MatchHeight = _titleViewContainer.MatchWidth = true;
-				_titleViewContainer.LayoutParameters = new Toolbar.LayoutParams(LP.MatchParent, LP.MatchParent)
+				if (_titleViewLayoutContainer == null)
 				{
-					LeftMargin = (int)context.ToPixels(titleView.Margin.Left),
-					TopMargin = (int)context.ToPixels(titleView.Margin.Top),
-					RightMargin = (int)context.ToPixels(titleView.Margin.Right),
-					BottomMargin = (int)context.ToPixels(titleView.Margin.Bottom)
-				};
+					_titleViewLayoutContainer = new global::Android.Widget.FrameLayout(ShellContext.AndroidContext)
+					{
+						LayoutParameters = new AppBarLayout.LayoutParams(LP.MatchParent, LP.MatchParent)
+					};
+				}
 
-				_toolbar.AddView(_titleViewContainer);
+				_titleViewContainer = new ShellTitleView(context, titleView);
+
+				if(toolbar is ShellToolbar st)
+				{
+					st.TitleViewContainer = _titleViewContainer;
+				}
 			}
 			else
 			{
+				_titleViewContainer.ToolbarWidthPx = -1;
+				_titleViewContainer.ToolbarHeightPx = -1;
 				_titleViewContainer.View = titleView;
+			}
+
+			if (_titleViewContainer != null)
+			{
+				_titleViewContainer.Container = _titleViewLayoutContainer;
+				_titleViewLayoutContainer.RemoveAllViews();
+				_titleViewLayoutContainer.AddView(_titleViewContainer.NativeView);
+
+				bool found = false;
+				for (int i = 0; i < toolbar.ChildCount; i++)
+				{
+					if (toolbar.GetChildAt(i) == _titleViewLayoutContainer)
+						found = true;
+				}
+
+				if (!found)
+					toolbar.AddView(_titleViewLayoutContainer);
 			}
 		}
 
