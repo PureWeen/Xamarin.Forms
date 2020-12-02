@@ -666,7 +666,7 @@ namespace Xamarin.Forms.Platform.Android
 
 		void UpdateTitleView()
 		{
-			UpdateTitleView(ShellContext.AndroidContext, _toolbar, Shell.GetTitleView(Page));
+			UpdateTitleView(ShellContext.AndroidContext, _toolbar, Shell.GetTitleView(Page) ?? Shell.GetTitleView(ShellContext.Shell));
 		}
 
 		void UpdateToolbarItems()

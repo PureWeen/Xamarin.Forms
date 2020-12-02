@@ -37,5 +37,16 @@ namespace Xamarin.Forms.Platform.Android
 				TitleViewContainer.LayoutViews();
 			}
 		}
+
+		protected override void OnLayout(bool changed, int left, int top, int right, int bottom)
+		{
+			base.OnLayout(changed, left, top, right, bottom);
+
+			if (TitleViewContainer != null)
+			{
+				TitleViewContainer.SetupLayoutParameters();
+				TitleViewContainer.LayoutViews();
+			}
+		}
 	}
 }
